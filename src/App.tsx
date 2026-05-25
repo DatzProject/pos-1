@@ -12,7 +12,19 @@ const COLORS = {
   border: "#2e2c3e",
 };
 
-const QUESTIONS = [
+interface Question {
+  a: number;
+  b: number;
+  op: string;
+  answer: number;
+}
+
+interface CheckedQuestion extends Question {
+  userAnswer: number;
+  correct: boolean;
+}
+
+const QUESTIONS: Question[] = [
   { a: 245, b: 378, op: "+", answer: 623 },
   { a: 564, b: 219, op: "+", answer: 783 },
   { a: 782, b: 346, op: "−", answer: 436 },
@@ -27,7 +39,11 @@ const SECTIONS = [
   { label: "Perkalian (3 digit)", indices: [4, 5] },
 ];
 
-const opColor = { "+": "#60a5fa", "−": "#f472b6", "×": "#a78bfa" };
+const opColor: Record<string, string> = {
+  "+": "#60a5fa",
+  "−": "#f472b6",
+  "×": "#a78bfa",
+};
 
 const GRADES = [
   "Ayo berlatih lagi!",
@@ -40,12 +56,12 @@ const GRADES = [
 ];
 
 export default function MathQuiz() {
-  const [inputs, setInputs] = useState(Array(6).fill(""));
-  const [result, setResult] = useState(null);
+  const [inputs, setInputs] = useState<string[]>(Array(6).fill(""));
+  const [result, setResult] = useState<CheckedQuestion[] | null>(null);
 
   const allFilled = inputs.every((v) => v.trim() !== "");
 
-  const handleChange = (i, val) => {
+  const handleChange = (i: number, val: string) => {
     if (result) return;
     setInputs((prev) => {
       const next = [...prev];
@@ -56,7 +72,7 @@ export default function MathQuiz() {
 
   const handleSubmit = () => {
     if (!allFilled || result) return;
-    const checked = QUESTIONS.map((q, i) => {
+    const checked: CheckedQuestion[] = QUESTIONS.map((q, i) => {
       const userAnswer = parseInt(inputs[i].trim(), 10);
       return { ...q, userAnswer, correct: userAnswer === q.answer };
     });
@@ -183,7 +199,6 @@ export default function MathQuiz() {
       >
         {SECTIONS.map((section) => (
           <div key={section.label}>
-            {/* Section label */}
             <p
               style={{
                 fontSize: "0.7rem",
@@ -197,21 +212,12 @@ export default function MathQuiz() {
               {section.label}
             </p>
 
-            {/* Cards in section */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.7rem",
-              }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
               {section.indices.map((qi) => {
                 const q = QUESTIONS[qi];
-                const res = result ? result[qi] : null;
+                const res: CheckedQuestion | null = result ? result[qi] : null;
                 const borderColor = res
-                  ? res.correct
-                    ? COLORS.success
-                    : COLORS.error
+                  ? res.correct ? COLORS.success : COLORS.error
                   : COLORS.border;
 
                 return (
@@ -229,7 +235,6 @@ export default function MathQuiz() {
                       transition: "border-color 0.3s",
                     }}
                   >
-                    {/* Nomor */}
                     <span
                       style={{
                         fontSize: "0.7rem",
@@ -241,7 +246,6 @@ export default function MathQuiz() {
                       {qi + 1}.
                     </span>
 
-                    {/* Soal */}
                     <div
                       style={{
                         display: "flex",
@@ -251,44 +255,20 @@ export default function MathQuiz() {
                         flexWrap: "wrap",
                       }}
                     >
-                      <span
-                        style={{
-                          fontSize: "clamp(1.3rem, 4vw, 1.7rem)",
-                          fontWeight: "700",
-                          color: COLORS.text,
-                        }}
-                      >
+                      <span style={{ fontSize: "clamp(1.3rem, 4vw, 1.7rem)", fontWeight: "700", color: COLORS.text }}>
                         {q.a}
                       </span>
-                      <span
-                        style={{
-                          fontSize: "clamp(1.3rem, 4vw, 1.7rem)",
-                          fontWeight: "700",
-                          color: opColor[q.op],
-                        }}
-                      >
+                      <span style={{ fontSize: "clamp(1.3rem, 4vw, 1.7rem)", fontWeight: "700", color: opColor[q.op] }}>
                         {q.op}
                       </span>
-                      <span
-                        style={{
-                          fontSize: "clamp(1.3rem, 4vw, 1.7rem)",
-                          fontWeight: "700",
-                          color: COLORS.text,
-                        }}
-                      >
+                      <span style={{ fontSize: "clamp(1.3rem, 4vw, 1.7rem)", fontWeight: "700", color: COLORS.text }}>
                         {q.b}
                       </span>
-                      <span
-                        style={{
-                          fontSize: "clamp(1.1rem, 3vw, 1.4rem)",
-                          color: COLORS.muted,
-                        }}
-                      >
+                      <span style={{ fontSize: "clamp(1.1rem, 3vw, 1.4rem)", color: COLORS.muted }}>
                         =
                       </span>
                     </div>
 
-                    {/* Input */}
                     <input
                       type="text"
                       inputMode="numeric"
@@ -300,15 +280,9 @@ export default function MathQuiz() {
                       style={{
                         width: "110px",
                         background: COLORS.surface,
-                        border: `1.5px solid ${
-                          res ? borderColor : COLORS.border
-                        }`,
+                        border: `1.5px solid ${res ? borderColor : COLORS.border}`,
                         borderRadius: "8px",
-                        color: res
-                          ? res.correct
-                            ? COLORS.success
-                            : COLORS.error
-                          : COLORS.text,
+                        color: res ? (res.correct ? COLORS.success : COLORS.error) : COLORS.text,
                         fontSize: "1.2rem",
                         padding: "0.5rem 0.75rem",
                         outline: "none",
@@ -319,7 +293,6 @@ export default function MathQuiz() {
                       }}
                     />
 
-                    {/* Feedback */}
                     {res && (
                       <div
                         style={{
